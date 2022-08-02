@@ -1,0 +1,74 @@
+<ENDPOINT>
+    <DESCRIPTION>Gizero Air Quality sensor</DESCRIPTION>
+    <CATEGORY>18</CATEGORY>
+    <VISUALIZATION_TYPE>GIZERO_AIRQUALITY</VISUALIZATION_TYPE>
+    <MAPPING>
+        <VISUALIZATION_NAME>UUID</VISUALIZATION_NAME>
+        <DESCRIPTION>Safe Place UUID</DESCRIPTION>
+        <INPUT_MASK>HHHHHHHH-HHHH-HHHH-HHHH-HHHHHHHHHHHH</INPUT_MASK>
+        <VALIDATION_REGEX>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}</VALIDATION_REGEX>
+    </MAPPING>
+    <TAG>Humidity</TAG>
+    <TAG>Temperature</TAG>
+    <TAG>Environmental sensor</TAG>
+    <PARAMETERS>
+        <PARAMETER>
+            <NAME>o3</NAME>
+            <DATA_TYPE>FLOAT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>GRAPH</DEFAULT_LOG_TYPE>
+            <UNIT>parts_per_billion</UNIT>
+            <DESCRIPTION>Ozone level measured by the sensor</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>tvoc</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>GRAPH</DEFAULT_LOG_TYPE>
+            <UNIT>parts_per_billion</UNIT>
+            <DESCRIPTION>Total Volatile Organic Compound level measured by the sensor</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>pm2_5</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>GRAPH</DEFAULT_LOG_TYPE>
+            <UNIT>gram_per_cu_metre</UNIT>
+            <UNIT_PREFIX>micro</UNIT_PREFIX>
+            <DESCRIPTION>PM2.5 particulate level measured by the sensor</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>pm10</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>GRAPH</DEFAULT_LOG_TYPE>
+            <UNIT>gram_per_cu_metre</UNIT>
+            <UNIT_PREFIX>micro</UNIT_PREFIX>
+            <DESCRIPTION>PM10 particulate level measured by the sensor</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>co2</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>GRAPH</DEFAULT_LOG_TYPE>
+            <UNIT>parts_per_million</UNIT>
+            <DESCRIPTION>CO2 concentration level measured by the sensor</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>temperatura</NAME>
+            <DATA_TYPE>FLOAT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>GRAPH</DEFAULT_LOG_TYPE>
+            <UNIT>celsius</UNIT>
+            <DESCRIPTION>Air temperature measured by the sensor</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>umidita</NAME>
+            <DATA_TYPE>FLOAT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>GRAPH</DEFAULT_LOG_TYPE>
+            <UNIT>percent</UNIT>
+            <DESCRIPTION>Air relative humidity measured by the sensor</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>connettivita</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>NONE</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Connectivity attribute, true if the endpoint is online</DESCRIPTION>
+        </PARAMETER>
+    </PARAMETERS>
+    <DEFAULT_PARAMETER>temperatura</DEFAULT_PARAMETER>
+</ENDPOINT>

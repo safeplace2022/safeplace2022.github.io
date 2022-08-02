@@ -1,0 +1,66 @@
+<ENDPOINT>
+    <DESCRIPTION>Gizero IoT Box</DESCRIPTION>
+    <CATEGORY>18</CATEGORY>
+    <VISUALIZATION_TYPE>GIZERO_IOTBOX</VISUALIZATION_TYPE>
+    <MAPPING>
+        <VISUALIZATION_NAME>UUID</VISUALIZATION_NAME>
+        <DESCRIPTION>Safe Place UUID</DESCRIPTION>
+        <INPUT_MASK>HHHHHHHH-HHHH-HHHH-HHHH-HHHHHHHHHHHH</INPUT_MASK>
+        <VALIDATION_REGEX>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}</VALIDATION_REGEX>
+    </MAPPING>
+    <PARAMETERS>
+        <PARAMETER>
+            <NAME>jonix_status</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <OPERATION><NAME>switch</NAME></OPERATION>
+            <DESCRIPTION>Attribute to set the on/off state of the Jonix</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>vmc_status</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <OPERATION><NAME>switch</NAME></OPERATION>
+            <DESCRIPTION>Attribute to set the on/off state of the VMC</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>vmc_mode</NAME>
+            <DATA_TYPE>ENUMERATION</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <ENUM_VALS>AUTO,CROSS_FLOW,BYPASS</ENUM_VALS>
+            <DEFAULT_VALUE>AUTO</DEFAULT_VALUE>
+            <DESCRIPTION>Attribute to set the air-crossing mode of the VMC</DESCRIPTION>
+            <OPERATION><NAME>update</NAME></OPERATION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>fan_speed</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <STEP>1</STEP>
+            <MIN_VAL>0</MIN_VAL>
+            <MAX_VAL>10</MAX_VAL>
+            <DEFAULT_VALUE>0</DEFAULT_VALUE>
+            <OPERATION><NAME>update</NAME></OPERATION>
+            <DESCRIPTION>Attribute to set the fan speed of the VMC</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>fan_min_speed</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Minimun fan speed of the VMC</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>fan_max_speed</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Maximum fan speed of the VMC</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>connettivita</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>NONE</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Connectivity attribute, true if the endpoint is online</DESCRIPTION>
+        </PARAMETER>
+    </PARAMETERS>
+    <DEFAULT_PARAMETER>vmc_status</DEFAULT_PARAMETER>
+</ENDPOINT>
