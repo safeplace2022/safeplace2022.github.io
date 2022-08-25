@@ -1,0 +1,1573 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Safe Place API</title>
+    <style type="text/css">
+      body {
+	font-family: Trebuchet MS, sans-serif;
+	font-size: 15px;
+	color: #444;
+	margin-right: 24px;
+}
+
+h1	{
+	font-size: 25px;
+}
+h2	{
+	font-size: 20px;
+}
+h3	{
+	font-size: 16px;
+	font-weight: bold;
+}
+hr	{
+	height: 1px;
+	border: 0;
+	color: #ddd;
+	background-color: #ddd;
+}
+
+.app-desc {
+  clear: both;
+  margin-left: 20px;
+}
+.param-name {
+  width: 100%;
+}
+.license-info {
+  margin-left: 20px;
+}
+
+.license-url {
+  margin-left: 20px;
+}
+
+.model {
+  margin: 0 0 0px 20px;
+}
+
+.method {
+  margin-left: 20px;
+}
+
+.method-notes	{
+	margin: 10px 0 20px 0;
+	font-size: 90%;
+	color: #555;
+}
+
+pre {
+  padding: 10px;
+  margin-bottom: 2px;
+}
+
+.http-method {
+ text-transform: uppercase;
+}
+
+pre.get {
+  background-color: #0f6ab4;
+}
+
+pre.post {
+  background-color: #10a54a;
+}
+
+pre.put {
+  background-color: #c5862b;
+}
+
+pre.delete {
+  background-color: #a41e22;
+}
+
+.huge	{
+	color: #fff;
+}
+
+pre.example {
+  background-color: #f3f3f3;
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+code {
+  white-space: pre;
+}
+
+.nickname {
+  font-weight: bold;
+}
+
+.method-path {
+  font-size: 1.5em;
+  background-color: #0f6ab4;
+}
+
+.up {
+  float:right;
+}
+
+.parameter {
+  width: 500px;
+}
+
+.param {
+  width: 500px;
+  padding: 10px 0 0 20px;
+  font-weight: bold;
+}
+
+.param-desc {
+  width: 700px;
+  padding: 0 0 0 20px;
+  color: #777;
+}
+
+.param-type {
+  font-style: italic;
+}
+
+.param-enum-header {
+width: 700px;
+padding: 0 0 0 60px;
+color: #777;
+font-weight: bold;
+}
+
+.param-enum {
+width: 700px;
+padding: 0 0 0 80px;
+color: #777;
+font-style: italic;
+}
+
+.field-label {
+  padding: 0;
+  margin: 0;
+  clear: both;
+}
+
+.field-items	{
+	padding: 0 0 15px 0;
+	margin-bottom: 15px;
+}
+
+.return-type {
+  clear: both;
+  padding-bottom: 10px;
+}
+
+.param-header {
+  font-weight: bold;
+}
+
+.method-tags {
+  text-align: right;
+}
+
+.method-tag {
+  background: none repeat scroll 0% 0% #24A600;
+  border-radius: 3px;
+  padding: 2px 10px;
+  margin: 2px;
+  color: #FFF;
+  display: inline-block;
+  text-decoration: none;
+}
+
+    </style>
+  </head>
+  <body>
+  <h1>Safe Place API</h1>
+    <div class="app-desc"><p>On Restapi startup several actions are taken<br/>
+Restapi searches for the folder <i>/etc/boxio-restapi-server</i>, if it does not exist then it’s created.
+In this folder Restapi stores the information that has to persist through the boxio power cycles.<br/>
+Restapi searches for <i>/etc/boxio-restapi-server/remoteserver.json</i>, if it’s not presents then it’s created with this default configuration<br/></p>
+<pre><code>{<br/>  ip: string - default "",<br/>  token: string - default "",<br/>}</code>
+</pre>
+<p>The ip attribute holds the ip or the domain name of the server to which the websocket connection has to be created and the token attribute is the token used to connect with the server.<br/>
+If the ip field is not empty when Restapi is started then the connection is created, otherwise no connection is established.<br/>
+If there’s no ip the token is ignored, if just the ip is set then the token is requested again to the server and the websocket connection is created.<br/>
+If both fields are filled, the connection is created using the provided data.<br/>
+<br/>
+Restapi searches in <i>/etc/boxio-restapi-server/</i> for the <i>structure.json</i> and <i>automatism.json</i> files, those contain the json configuration: the in the first one we store the endpoints structure and in the second one the wanted behavior of the endpoints.<br/>
+If Restapi cannot find one or both those files it creates them with an empty json object as content.<br/>
+<br/>
+Restapi searches for <i>/etc/boxio-restapi-server/aclPermissionMessage.json</i>, if it’s not presents then it’s created with this default configuration<br/></p>
+<pre><code>{<br/>  permission_revision: string - default "",<br/>  uuid: string - default "",<br/>  permissions: object - default {}<br/>}
+</code></pre>
+<p>In this version of boxio there’s an mqtt broker running that needs to who the access control list.<br/>
+We will see that Restapi receives the acl from the server and stores them in a database available to the broker.<br/>
+Restapi saves the last acl message received in the aclPermissionMessage file.<br/>
+<br/>
+Since there are other services, such as else, that needs to connect to the broker, Restapi has to store the mqtt credentials in <i>/etc/boxio-restapi-server/mqttCredentials.json</i>.<br/>
+If this file does not exists it’s created with those default values<br/></p>
+<pre><code>{<br/>  enabled: bool - default false,<br/>  url: string - default "",<br/>  port: int - default 0,<br/>  ssl_enabled: bool - default false,<br/>  ssl_verify_certificate: bool - default false,<br/>  cloud_type: string - default "",<br/>  username: string - default "",<br/>  password: string - default "",<br/>  client_id: string - default ""<br/>}</code>
+</pre>
+<p>Restapi, using <i>systemctl</i>, enables the <i>dnsmasq</i> and <i>hostapd</i> services.<br/>
+Then Restapi start listening on port <b>8443</b><br/>
+<br/>
+We said that the mqtt broker on the boxio needs to know the acl and the list of users that have the permission to view and manage the boxio data.<br/>
+Those informations are stored in an sqlite database managed by this controller.<br/>
+The database file is <i>/etc/boxio-restapi-server/access-control.sql</i>, if this file is not found when restapi starts then it’s created and initialized.<br/>
+When the database is created we add to the user table the configurator user with password <i>“configurator”</i> and in the boxio table we add the boxio itself with a random password.<br/>
+Then the mqttCredentials.json file is updated with the credentials of the boxio.<br/>
+<br/>
+In order to make the first BOXIO configuration, it's mandatory to invoke the <b>/newborn</b> API.<br/>
+The system could work in two diffirent modes</p>
+<ul>
+<li>Connected to a server</li>
+<li>Standalone</li>
+</ul>
+If the mode is <i>standalone</i>, then the rest api interface provides the <i>/auth</i> to make the user able to get an access token. If the Boxio is connect to a server this route will be not available and the authentication has to be performed on the given server<br/>    
+</div>
+    <div class="app-desc">More information: <a href="https://openapi-generator.tech">https://openapi-generator.tech</a></div>
+    <div class="app-desc">Contact Info: <a href="team@openapitools.org">team@openapitools.org</a></div>
+    <div class="app-desc">Version: 1.0.0</div>
+    <div class="app-desc">BasePath:</div>
+    <div class="license-info">All rights reserved</div>
+    <div class="license-url">http://apache.org/licenses/LICENSE-2.0.html</div>
+  <h2>Access</h2>
+
+  <h2><a name="__Methods">Methods</a></h2>
+  [ Jump to <a href="#__Models">Models</a> ]
+
+  <h3>Table of Contents </h3>
+  <div class="method-summary"></div>
+  <h4><a href="#Authentication">Authentication</a></h4>
+  <ul>
+  <li><a href="#authPost"><code><span class="http-method">post</span> /auth</code></a></li>
+  </ul>
+  <h4><a href="#Configuration">Configuration</a></h4>
+  <ul>
+  <li><a href="#configurationAutomatismGet"><code><span class="http-method">get</span> /configuration/automatism</code></a></li>
+  <li><a href="#configurationGet"><code><span class="http-method">get</span> /configuration/</code></a></li>
+  <li><a href="#configurationPermissionsGet"><code><span class="http-method">get</span> /configuration/permissions</code></a></li>
+  <li><a href="#configurationPost"><code><span class="http-method">post</span> /configuration/</code></a></li>
+  <li><a href="#configurationStructureGet"><code><span class="http-method">get</span> /configuration/structure</code></a></li>
+  </ul>
+  <h4><a href="#Factory">Factory</a></h4>
+  <ul>
+  <li><a href="#factoryResetPost"><code><span class="http-method">post</span> /factory/reset</code></a></li>
+  </ul>
+  <h4><a href="#Network">Network</a></h4>
+  <ul>
+  <li><a href="#networkGet"><code><span class="http-method">get</span> /network</code></a></li>
+  <li><a href="#networkInterfaceGet"><code><span class="http-method">get</span> /network/{interface}</code></a></li>
+  <li><a href="#networkPost"><code><span class="http-method">post</span> /network</code></a></li>
+  <li><a href="#networkWifiScanGet"><code><span class="http-method">get</span> /network/wifi/scan</code></a></li>
+  </ul>
+  <h4><a href="#Newborn">Newborn</a></h4>
+  <ul>
+  <li><a href="#newbornPost"><code><span class="http-method">post</span> /newborn</code></a></li>
+  </ul>
+  <h4><a href="#Utility">Utility</a></h4>
+  <ul>
+  <li><a href="#utilityDateGet"><code><span class="http-method">get</span> /utility/date</code></a></li>
+  <li><a href="#utilityDatePut"><code><span class="http-method">put</span> /utility/date</code></a></li>
+  <li><a href="#utilityInfoGet"><code><span class="http-method">get</span> /utility/info</code></a></li>
+  <li><a href="#utilityVerifyGet"><code><span class="http-method">get</span> /utility/verify</code></a></li>
+  </ul>
+  <h4><a href="#Zigbee">Zigbee</a></h4>
+  <ul>
+  <li><a href="#zigbeeChannelGet"><code><span class="http-method">get</span> /zigbee/channel</code></a></li>
+  <li><a href="#zigbeeChannelPost"><code><span class="http-method">post</span> /zigbee/channel</code></a></li>
+  </ul>
+
+  <h1><a name="Authentication">Authentication</a></h1>
+  <div class="method"><a name="authPost"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="post"><code class="huge"><span class="http-method">post</span> /auth</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">authPost</span>)</div>
+    <div class="method-notes">Used for both for provind and refreshing the JWT token<br/>
+This API is available just if the Boxio is configured as <i>standalone</i>, so it has no server, otherwise it will be not present</div>
+
+
+    <h3 class="field-label">Consumes</h3>
+    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Request body</h3>
+    <div class="field-items">
+      <div class="param">_auth_post_request <a href="#_auth_post_request">_auth_post_request</a> (required)</div>
+
+      <div class="param-desc"><span class="param-type">Body Parameter</span> &mdash;  </div>
+
+    </div>  <!-- field-items -->
+
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#_auth_post_200_response">_auth_post_200_response</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "access_token" : "edhcgbsad-dfsdasda-23ewd4raesd",
+  "refresh_token" : "edhcgbsad-dfsdasda-23ewd4raeaa"
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Success response
+        <a href="#_auth_post_200_response">_auth_post_200_response</a>
+  </div> <!-- method -->
+  <hr/>
+  <h1><a name="Configuration">Configuration</a></h1>
+  <div class="method"><a name="configurationAutomatismGet"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /configuration/automatism</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">configurationAutomatismGet</span>)</div>
+    <div class="method-notes">Provides the automatism section of the J.I.F. stored in the Boxio<br/>
+This API is only available after completing the configuration</div>
+
+
+
+
+    <h3 class="field-label">Request headers</h3>
+    <div class="field-items">
+      <div class="param">Authorization (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  default: null </div>
+
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#_configuration_automatism_get_200_response">_configuration_automatism_get_200_response</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "automatism" : "{}"
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Success response
+        <a href="#_configuration_automatism_get_200_response">_configuration_automatism_get_200_response</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="configurationGet"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /configuration/</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">configurationGet</span>)</div>
+    <div class="method-notes">Provides the J.I.F. configuration stored in the Boxio<br/>
+This API is only available after completing the configuration</div>
+
+
+
+
+    <h3 class="field-label">Request headers</h3>
+    <div class="field-items">
+      <div class="param">Authorization (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  default: null </div>
+
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#_configuration__get_200_response">_configuration__get_200_response</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "configuration" : "{}"
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Success response
+        <a href="#_configuration__get_200_response">_configuration__get_200_response</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="configurationPermissionsGet"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /configuration/permissions</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">configurationPermissionsGet</span>)</div>
+    <div class="method-notes">Provides the list of the permissions sotred in the credential database of the Boxio<br/>
+This API is only available after completing the configuration</div>
+
+
+
+
+    <h3 class="field-label">Request headers</h3>
+    <div class="field-items">
+      <div class="param">Authorization (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  default: null </div>
+
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#_configuration_permissions_get_200_response">_configuration_permissions_get_200_response</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "endpoints" : [ "{}", "{}" ],
+  "automatism_permissions" : [ {
+    "complex_rules" : [ {
+      "simple_rules" : [ {
+        "uuid" : "uuid",
+        "actions" : [ "actions", "actions" ]
+      }, {
+        "uuid" : "uuid",
+        "actions" : [ "actions", "actions" ]
+      } ],
+      "uuid" : "uuid"
+    }, {
+      "simple_rules" : [ {
+        "uuid" : "uuid",
+        "actions" : [ "actions", "actions" ]
+      }, {
+        "uuid" : "uuid",
+        "actions" : [ "actions", "actions" ]
+      } ],
+      "uuid" : "uuid"
+    } ],
+    "actions" : [ "actions", "actions" ]
+  }, {
+    "complex_rules" : [ {
+      "simple_rules" : [ {
+        "uuid" : "uuid",
+        "actions" : [ "actions", "actions" ]
+      }, {
+        "uuid" : "uuid",
+        "actions" : [ "actions", "actions" ]
+      } ],
+      "uuid" : "uuid"
+    }, {
+      "simple_rules" : [ {
+        "uuid" : "uuid",
+        "actions" : [ "actions", "actions" ]
+      }, {
+        "uuid" : "uuid",
+        "actions" : [ "actions", "actions" ]
+      } ],
+      "uuid" : "uuid"
+    } ],
+    "actions" : [ "actions", "actions" ]
+  } ],
+  "permissions" : "{}",
+  "endpoint_types" : [ "{}", "{}" ]
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Success response
+        <a href="#_configuration_permissions_get_200_response">_configuration_permissions_get_200_response</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="configurationPost"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="post"><code class="huge"><span class="http-method">post</span> /configuration/</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">configurationPost</span>)</div>
+    <div class="method-notes">Provides the J.I.F. configuration to the Boxio. This action could be performed just if the Boxio has no server set
+This API is only available after completing the configuration</div>
+
+
+    <h3 class="field-label">Consumes</h3>
+    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Request body</h3>
+    <div class="field-items">
+      <div class="param">body <a href="#object">object</a> (required)</div>
+
+      <div class="param-desc"><span class="param-type">Body Parameter</span> &mdash;  </div>
+
+    </div>  <!-- field-items -->
+
+    <h3 class="field-label">Request headers</h3>
+    <div class="field-items">
+      <div class="param">Authorization (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  default: null </div>
+
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      
+      Object
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Success response
+        <a href="#Object">Object</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="configurationStructureGet"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /configuration/structure</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">configurationStructureGet</span>)</div>
+    <div class="method-notes">Provides the structure section of the J.I.F stored in the Boxio<br/>
+This API is only available after completing the configuration</div>
+
+
+
+
+    <h3 class="field-label">Request headers</h3>
+    <div class="field-items">
+      <div class="param">Authorization (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  default: null </div>
+
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#_configuration_structure_get_200_response">_configuration_structure_get_200_response</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "structure" : "{}"
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Success response
+        <a href="#_configuration_structure_get_200_response">_configuration_structure_get_200_response</a>
+  </div> <!-- method -->
+  <hr/>
+  <h1><a name="Factory">Factory</a></h1>
+  <div class="method"><a name="factoryResetPost"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="post"><code class="huge"><span class="http-method">post</span> /factory/reset</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">factoryResetPost</span>)</div>
+    <div class="method-notes"><p>This api will:</p>
+<ul>
+<li>Stop and disable <i>else</i> and <i>zigbee-driver</i></li>
+<li>Erase network configuration files</li>
+<li>Remove all the zigbee devices firmwares</li>
+<li>Remove the jif configuration</li>
+<li>Restore the defaults</li>
+<li>Reboot the Boxio</li>
+</ul>
+</div>
+
+
+    <h3 class="field-label">Consumes</h3>
+    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Request body</h3>
+    <div class="field-items">
+      <div class="param">body <a href="#object">object</a> (required)</div>
+
+      <div class="param-desc"><span class="param-type">Body Parameter</span> &mdash;  </div>
+
+    </div>  <!-- field-items -->
+
+    <h3 class="field-label">Request headers</h3>
+    <div class="field-items">
+      <div class="param">Authorization (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  default: null </div>
+
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      
+      Object
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Success response
+        <a href="#Object">Object</a>
+  </div> <!-- method -->
+  <hr/>
+  <h1><a name="Network">Network</a></h1>
+  <div class="method"><a name="networkGet"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /network</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">networkGet</span>)</div>
+    <div class="method-notes">Provied the current network configuration</div>
+
+
+
+
+    <h3 class="field-label">Request headers</h3>
+    <div class="field-items">
+      <div class="param">Authorization (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  default: null </div>
+
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#_network_get_200_response">_network_get_200_response</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "ethernet" : {
+    "static" : {
+      "subnet" : "255.255.255.255",
+      "ip" : "192.168.1.34",
+      "gateway" : "192.168.1.1"
+    },
+    "enable" : true,
+    "type" : "static",
+    "primary" : true
+  },
+  "wireless" : {
+    "static" : {
+      "subnet" : "255.255.255.255",
+      "ip" : "192.168.1.34",
+      "gateway" : "192.168.1.1"
+    },
+    "enable" : true,
+    "type" : "static",
+    "primary" : true,
+    "network" : {
+      "phase1" : "",
+      "phase2" : "",
+      "password" : "",
+      "eap" : "",
+      "identity" : "",
+      "psk" : "",
+      "key_mgmt" : "",
+      "ssid" : "EDALab Main",
+      "ca_cert" : ""
+    }
+  },
+  "ap" : {
+    "enable" : true
+  }
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Success response
+        <a href="#_network_get_200_response">_network_get_200_response</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="networkInterfaceGet"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /network/{interface}</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">networkInterfaceGet</span>)</div>
+    <div class="method-notes">Provides the actual configuration of the given interface</div>
+
+    <h3 class="field-label">Path parameters</h3>
+    <div class="field-items">
+      <div class="param">interface (required)</div>
+
+      <div class="param-desc"><span class="param-type">Path Parameter</span> &mdash; Desired interface in [wifi, eth, ap] default: null </div>
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Request headers</h3>
+    <div class="field-items">
+      <div class="param">Authorization (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  default: null </div>
+
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#_network__interface__get_200_response">_network__interface__get_200_response</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>null</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Success response
+        <a href="#_network__interface__get_200_response">_network__interface__get_200_response</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="networkPost"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="post"><code class="huge"><span class="http-method">post</span> /network</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">networkPost</span>)</div>
+    <div class="method-notes">Set the desired network configuration for the wireless or the ethernet interface</div>
+
+
+    <h3 class="field-label">Consumes</h3>
+    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Request body</h3>
+    <div class="field-items">
+      <div class="param">_network_get_request <a href="#_network_get_request">_network_get_request</a> (required)</div>
+
+      <div class="param-desc"><span class="param-type">Body Parameter</span> &mdash;  </div>
+
+    </div>  <!-- field-items -->
+
+    <h3 class="field-label">Request headers</h3>
+    <div class="field-items">
+      <div class="param">Authorization (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  default: null </div>
+
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      
+      Object
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Success response
+        <a href="#Object">Object</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="networkWifiScanGet"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /network/wifi/scan</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">networkWifiScanGet</span>)</div>
+    <div class="method-notes">Provides the list of the wireless networks available for the Boxio</div>
+
+
+
+
+    <h3 class="field-label">Request headers</h3>
+    <div class="field-items">
+      <div class="param">Authorization (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  default: null </div>
+
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      array[<a href="#_network_wifi_scan_get_200_response_inner">_network_wifi_scan_get_200_response_inner</a>]
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "signalLevel" : 12,
+  "bssid" : "as12df",
+  "flags" : "[PSK]",
+  "ssid" : "EDALab Main",
+  "frequency" : 240
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    
+        
+  </div> <!-- method -->
+  <hr/>
+  <h1><a name="Newborn">Newborn</a></h1>
+  <div class="method"><a name="newbornPost"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="post"><code class="huge"><span class="http-method">post</span> /newborn</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">newbornPost</span>)</div>
+    <div class="method-notes">Has to be invoked as first step on the configuration process of a brand new Boxio. It retrieves the certificates from the Tefiti server<br/>
+When the configuration process is completed, this API will be no longer available</div>
+
+
+    <h3 class="field-label">Consumes</h3>
+    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Request body</h3>
+    <div class="field-items">
+      <div class="param">_newborn_post_request <a href="#_newborn_post_request">_newborn_post_request</a> (required)</div>
+
+      <div class="param-desc"><span class="param-type">Body Parameter</span> &mdash;  </div>
+
+    </div>  <!-- field-items -->
+
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#_newborn_post_200_response">_newborn_post_200_response</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "password" : "",
+  "cert" : ""
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    
+        <a href="#_newborn_post_200_response">_newborn_post_200_response</a>
+  </div> <!-- method -->
+  <hr/>
+  <h1><a name="Utility">Utility</a></h1>
+  <div class="method"><a name="utilityDateGet"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /utility/date</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">utilityDateGet</span>)</div>
+    <div class="method-notes">Provides the actual Boxio date<br/>
+This API is only available after completing the configuration</div>
+
+
+
+
+    <h3 class="field-label">Request headers</h3>
+    <div class="field-items">
+      <div class="param">Authorization (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  default: null </div>
+
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#_utility_date_get_200_response">_utility_date_get_200_response</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "date" : "30-06-2022 08:00:11"
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Success response
+        <a href="#_utility_date_get_200_response">_utility_date_get_200_response</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="utilityDatePut"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="put"><code class="huge"><span class="http-method">put</span> /utility/date</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">utilityDatePut</span>)</div>
+    <div class="method-notes">Set date and time of the Boxio. The timestamp provided has to be UTC<br/>
+This API is only available after completing the configuration</div>
+
+
+    <h3 class="field-label">Consumes</h3>
+    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Request body</h3>
+    <div class="field-items">
+      <div class="param">_utility_date_get_request <a href="#_utility_date_get_request">_utility_date_get_request</a> (required)</div>
+
+      <div class="param-desc"><span class="param-type">Body Parameter</span> &mdash;  </div>
+
+    </div>  <!-- field-items -->
+
+    <h3 class="field-label">Request headers</h3>
+    <div class="field-items">
+      <div class="param">Authorization (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  default: null </div>
+
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      
+      Object
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Success response
+        <a href="#Object">Object</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="utilityInfoGet"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /utility/info</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">utilityInfoGet</span>)</div>
+    <div class="method-notes">Provides informations about the Boxio<br/>
+This API is only available after completing the configuration</div>
+
+
+
+
+    <h3 class="field-label">Request headers</h3>
+    <div class="field-items">
+      <div class="param">Authorization (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  default: null </div>
+
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#_utility_info_get_200_response">_utility_info_get_200_response</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "date" : "30-06-2022 08:00:11",
+  "configurationMode" : "cloud",
+  "hostname" : "boxio-dev01",
+  "macAddress" : "aa:bb:cc:dd:00:11",
+  "bspVersion" : "4.1.3",
+  "cloudName" : "cloud.edalab.it",
+  "uuid" : "12312",
+  "ieee" : "0000000000000042"
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Success response
+        <a href="#_utility_info_get_200_response">_utility_info_get_200_response</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="utilityVerifyGet"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /utility/verify</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">utilityVerifyGet</span>)</div>
+    <div class="method-notes">Used by emqx jwt token just to know if the provided token is valid<br/>
+This API is only available after completing the configuration</div>
+
+
+
+
+    <h3 class="field-label">Request headers</h3>
+    <div class="field-items">
+      <div class="param">Authorization (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  default: null </div>
+
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      
+      Object
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Success response
+        <a href="#Object">Object</a>
+  </div> <!-- method -->
+  <hr/>
+  <h1><a name="Zigbee">Zigbee</a></h1>
+  <div class="method"><a name="zigbeeChannelGet"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="get"><code class="huge"><span class="http-method">get</span> /zigbee/channel</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">zigbeeChannelGet</span>)</div>
+    <div class="method-notes">Provides the current zigbee channel<br/>
+This API is only available after completing the configuration</div>
+
+
+
+
+    <h3 class="field-label">Request headers</h3>
+    <div class="field-items">
+      <div class="param">Authorization (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  default: null </div>
+
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      <a href="#_zigbee_channel_get_200_response">_zigbee_channel_get_200_response</a>
+      
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+    <h3 class="field-label">Example data</h3>
+    <div class="example-data-content-type">Content-Type: application/json</div>
+    <pre class="example"><code>{
+  "channel" : 12
+}</code></pre>
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Success response
+        <a href="#_zigbee_channel_get_200_response">_zigbee_channel_get_200_response</a>
+  </div> <!-- method -->
+  <hr/>
+  <div class="method"><a name="zigbeeChannelPost"/>
+    <div class="method-path">
+    <a class="up" href="#__Methods">Up</a>
+    <pre class="post"><code class="huge"><span class="http-method">post</span> /zigbee/channel</code></pre></div>
+    <div class="method-summary"> (<span class="nickname">zigbeeChannelPost</span>)</div>
+    <div class="method-notes">Sets the provided zigbee channel<br/>
+This API is only available after completing the configuration</div>
+
+
+    <h3 class="field-label">Consumes</h3>
+    This API call consumes the following media types via the <span class="header">Content-Type</span> request header:
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Request body</h3>
+    <div class="field-items">
+      <div class="param">_zigbee_channel_get_request <a href="#_zigbee_channel_get_request">_zigbee_channel_get_request</a> (required)</div>
+
+      <div class="param-desc"><span class="param-type">Body Parameter</span> &mdash;  </div>
+
+    </div>  <!-- field-items -->
+
+    <h3 class="field-label">Request headers</h3>
+    <div class="field-items">
+      <div class="param">Authorization (optional)</div>
+
+      <div class="param-desc"><span class="param-type">Header Parameter</span> &mdash;  default: null </div>
+
+    </div>  <!-- field-items -->
+
+
+
+    <h3 class="field-label">Return type</h3>
+    <div class="return-type">
+      
+      Object
+    </div>
+
+    <!--Todo: process Response Object and its headers, schema, examples -->
+
+
+    <h3 class="field-label">Produces</h3>
+    This API call produces the following media types according to the <span class="header">Accept</span> request header;
+    the media type will be conveyed by the <span class="header">Content-Type</span> response header.
+    <ul>
+      <li><code>application/json</code></li>
+    </ul>
+
+    <h3 class="field-label">Responses</h3>
+    <h4 class="field-label">200</h4>
+    Success response
+        <a href="#Object">Object</a>
+  </div> <!-- method -->
+  <hr/>
+
+  <h2><a name="__Models">Models</a></h2>
+  [ Jump to <a href="#__Methods">Methods</a> ]
+
+  <h3>Table of Contents</h3>
+  <ol>
+    <li><a href="#_auth_post_200_response"><code>_auth_post_200_response</code> - </a></li>
+    <li><a href="#_auth_post_request"><code>_auth_post_request</code> - </a></li>
+    <li><a href="#_configuration__get_200_response"><code>_configuration__get_200_response</code> - </a></li>
+    <li><a href="#_configuration_automatism_get_200_response"><code>_configuration_automatism_get_200_response</code> - </a></li>
+    <li><a href="#_configuration_permissions_get_200_response"><code>_configuration_permissions_get_200_response</code> - </a></li>
+    <li><a href="#_configuration_permissions_get_200_response_automatism_permissions_inner"><code>_configuration_permissions_get_200_response_automatism_permissions_inner</code> - </a></li>
+    <li><a href="#_configuration_permissions_get_200_response_automatism_permissions_inner_complex_rules_inner"><code>_configuration_permissions_get_200_response_automatism_permissions_inner_complex_rules_inner</code> - </a></li>
+    <li><a href="#_configuration_permissions_get_200_response_automatism_permissions_inner_complex_rules_inner_simple_rules_inner"><code>_configuration_permissions_get_200_response_automatism_permissions_inner_complex_rules_inner_simple_rules_inner</code> - </a></li>
+    <li><a href="#_configuration_structure_get_200_response"><code>_configuration_structure_get_200_response</code> - </a></li>
+    <li><a href="#_network__interface__get_200_response"><code>_network__interface__get_200_response</code> - </a></li>
+    <li><a href="#_network_get_200_response"><code>_network_get_200_response</code> - </a></li>
+    <li><a href="#_network_get_request"><code>_network_get_request</code> - </a></li>
+    <li><a href="#_network_get_request_wireless"><code>_network_get_request_wireless</code> - </a></li>
+    <li><a href="#_network_get_request_wireless_static"><code>_network_get_request_wireless_static</code> - </a></li>
+    <li><a href="#_network_wifi_scan_get_200_response_inner"><code>_network_wifi_scan_get_200_response_inner</code> - </a></li>
+    <li><a href="#_newborn_post_200_response"><code>_newborn_post_200_response</code> - </a></li>
+    <li><a href="#_newborn_post_request"><code>_newborn_post_request</code> - </a></li>
+    <li><a href="#_utility_date_get_200_response"><code>_utility_date_get_200_response</code> - </a></li>
+    <li><a href="#_utility_date_get_request"><code>_utility_date_get_request</code> - </a></li>
+    <li><a href="#_utility_info_get_200_response"><code>_utility_info_get_200_response</code> - </a></li>
+    <li><a href="#_zigbee_channel_get_200_response"><code>_zigbee_channel_get_200_response</code> - </a></li>
+    <li><a href="#_zigbee_channel_get_request"><code>_zigbee_channel_get_request</code> - </a></li>
+    <li><a href="#accesspoint"><code>accesspoint</code> - </a></li>
+    <li><a href="#ethernet"><code>ethernet</code> - </a></li>
+    <li><a href="#wireless"><code>wireless</code> - </a></li>
+    <li><a href="#wireless_network"><code>wireless_network</code> - </a></li>
+    <li><a href="#wireless_static"><code>wireless_static</code> - </a></li>
+  </ol>
+
+  <div class="model">
+    <h3><a name="_auth_post_200_response"><code>_auth_post_200_response</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">access_token (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">refresh_token (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_auth_post_request"><code>_auth_post_request</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">grant_type (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> One in [password, refresh_token] </div>
+<div class="param">username (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> Only if grant_type is password </div>
+<div class="param">password (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> Only if grant_type is password </div>
+<div class="param">access_token (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> Only if grant_type is refresh_token </div>
+<div class="param">refresh_token (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> Only if grant_type is refresh_token </div>
+<div class="param">client_id (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> An unique id related to the service </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_configuration__get_200_response"><code>_configuration__get_200_response</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">configuration (optional)</div><div class="param-desc"><span class="param-type"><a href="#">Object</a></span> The J.I.F. configuration </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_configuration_automatism_get_200_response"><code>_configuration_automatism_get_200_response</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">automatism (optional)</div><div class="param-desc"><span class="param-type"><a href="#">Object</a></span> Automatism section of the J.I.F. </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_configuration_permissions_get_200_response"><code>_configuration_permissions_get_200_response</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">permissions (optional)</div><div class="param-desc"><span class="param-type"><a href="#">Object</a></span>  </div>
+<div class="param">endpoints (optional)</div><div class="param-desc"><span class="param-type"><a href="#object">array[Object]</a></span> By now an empty array </div>
+<div class="param">automatism_permissions (optional)</div><div class="param-desc"><span class="param-type"><a href="#_configuration_permissions_get_200_response_automatism_permissions_inner">array[_configuration_permissions_get_200_response_automatism_permissions_inner]</a></span>  </div>
+<div class="param">endpoint_types (optional)</div><div class="param-desc"><span class="param-type"><a href="#object">array[Object]</a></span> By now an empty array </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_configuration_permissions_get_200_response_automatism_permissions_inner"><code>_configuration_permissions_get_200_response_automatism_permissions_inner</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">complex_rules (optional)</div><div class="param-desc"><span class="param-type"><a href="#_configuration_permissions_get_200_response_automatism_permissions_inner_complex_rules_inner">array[_configuration_permissions_get_200_response_automatism_permissions_inner_complex_rules_inner]</a></span>  </div>
+<div class="param">actions (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">array[String]</a></span> The list of actions uuids </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_configuration_permissions_get_200_response_automatism_permissions_inner_complex_rules_inner"><code>_configuration_permissions_get_200_response_automatism_permissions_inner_complex_rules_inner</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">uuid (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The complex rule uuid </div>
+<div class="param">simple_rules (optional)</div><div class="param-desc"><span class="param-type"><a href="#_configuration_permissions_get_200_response_automatism_permissions_inner_complex_rules_inner_simple_rules_inner">array[_configuration_permissions_get_200_response_automatism_permissions_inner_complex_rules_inner_simple_rules_inner]</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_configuration_permissions_get_200_response_automatism_permissions_inner_complex_rules_inner_simple_rules_inner"><code>_configuration_permissions_get_200_response_automatism_permissions_inner_complex_rules_inner_simple_rules_inner</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">uuid (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The simple rule uuid </div>
+<div class="param">actions (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">array[String]</a></span> The list of actions uuids </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_configuration_structure_get_200_response"><code>_configuration_structure_get_200_response</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">structure (optional)</div><div class="param-desc"><span class="param-type"><a href="#">Object</a></span> Structure section of the J.I.F. </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_network__interface__get_200_response"><code>_network__interface__get_200_response</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">enable (optional)</div><div class="param-desc"><span class="param-type"><a href="#boolean">Boolean</a></span> true if the interface is enabled </div>
+<div class="param">primary (optional)</div><div class="param-desc"><span class="param-type"><a href="#boolean">Boolean</a></span> true if the wireless inferface is primary </div>
+<div class="param">network (optional)</div><div class="param-desc"><span class="param-type"><a href="#wireless_network">wireless_network</a></span>  </div>
+<div class="param">type (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> one in [dhcp, static] </div>
+<div class="param">static (optional)</div><div class="param-desc"><span class="param-type"><a href="#wireless_static">wireless_static</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_network_get_200_response"><code>_network_get_200_response</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">wireless (optional)</div><div class="param-desc"><span class="param-type"><a href="#">wireless</a></span>  </div>
+<div class="param">ethernet (optional)</div><div class="param-desc"><span class="param-type"><a href="#">ethernet</a></span>  </div>
+<div class="param">ap (optional)</div><div class="param-desc"><span class="param-type"><a href="#">accesspoint</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_network_get_request"><code>_network_get_request</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">interface (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> One in [wireless, ethernet] </div>
+<div class="param">wireless (optional)</div><div class="param-desc"><span class="param-type"><a href="#_network_get_request_wireless">_network_get_request_wireless</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_network_get_request_wireless"><code>_network_get_request_wireless</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'>Optional. Only if interface is wireless</div>
+    <div class="field-items">
+      <div class="param">ssid (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> Desired network SSID </div>
+<div class="param">flags (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">array[String]</a></span> Network flags </div>
+<div class="param">key_mgmt (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> just if flag is EAP </div>
+<div class="param">eap (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> just if flag is EAP </div>
+<div class="param">identity (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> just if flag is EAP </div>
+<div class="param">ca_cert (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> just if flag is EAP. The path of the certificate </div>
+<div class="param">phase1 (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> just if flag is EAP </div>
+<div class="param">phase2 (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> just if flag is EAP </div>
+<div class="param">password (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> just if flag is EAP or PSK </div>
+<div class="param">type (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> One in [dhcp, static] </div>
+<div class="param">static (optional)</div><div class="param-desc"><span class="param-type"><a href="#_network_get_request_wireless_static">_network_get_request_wireless_static</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_network_get_request_wireless_static"><code>_network_get_request_wireless_static</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'>Only if type is static</div>
+    <div class="field-items">
+      <div class="param">ip (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The desired IP </div>
+<div class="param">subnet (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">gateway (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_network_wifi_scan_get_200_response_inner"><code>_network_wifi_scan_get_200_response_inner</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">ssid (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> Name of the wireless network </div>
+<div class="param">bssid (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> Network mac address </div>
+<div class="param">frequency (optional)</div><div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span> Frequence of the wireless network </div>
+<div class="param">signalLevel (optional)</div><div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span> Level in dB </div>
+<div class="param">flags (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">array[String]</a></span> Network flags, for instance PSK, EAP, ESS </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_newborn_post_200_response"><code>_newborn_post_200_response</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">password (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">cert (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_newborn_post_request"><code>_newborn_post_request</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">server (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The IP or the domain name the Boxio has to connect to </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_utility_date_get_200_response"><code>_utility_date_get_200_response</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">date (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The current Boxio date in format DD-MM-YYYY hh:mm:ss </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_utility_date_get_request"><code>_utility_date_get_request</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">date (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The current UTC timestamp in format YYYY-MM-DD hh:mm:ss </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_utility_info_get_200_response"><code>_utility_info_get_200_response</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">bspVersion (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">uuid (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">hostname (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The hostname of the Boxio </div>
+<div class="param">macAddress (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> Mac address of the eth interface </div>
+<div class="param">ieee (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> Address of the zigbee coordinator </div>
+<div class="param">configurationMode (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> One in [cloud, local] </div>
+<div class="param">cloudName (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The IP or the domain name of the cloud. This attribute will be present just if the configurationMode is set to cloud </div>
+<div class="param">date (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The current Boxio date in format DD-MM-YYYY hh:mm:ss </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_zigbee_channel_get_200_response"><code>_zigbee_channel_get_200_response</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">channel (optional)</div><div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span> Actual zigbee channel </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="_zigbee_channel_get_request"><code>_zigbee_channel_get_request</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">channel (optional)</div><div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span> Desired zigbee channel </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="accesspoint"><code>accesspoint</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">enable (optional)</div><div class="param-desc"><span class="param-type"><a href="#boolean">Boolean</a></span> true if the interface is enabled </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="ethernet"><code>ethernet</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">enable (optional)</div><div class="param-desc"><span class="param-type"><a href="#boolean">Boolean</a></span> true if the interface is enabled </div>
+<div class="param">primary (optional)</div><div class="param-desc"><span class="param-type"><a href="#boolean">Boolean</a></span> true if the wireless inferface is primary </div>
+<div class="param">type (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> one in [dhcp, static] </div>
+<div class="param">static (optional)</div><div class="param-desc"><span class="param-type"><a href="#wireless_static">wireless_static</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="wireless"><code>wireless</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">enable (optional)</div><div class="param-desc"><span class="param-type"><a href="#boolean">Boolean</a></span> true if the interface is enabled </div>
+<div class="param">primary (optional)</div><div class="param-desc"><span class="param-type"><a href="#boolean">Boolean</a></span> true if the wireless inferface is primary </div>
+<div class="param">network (optional)</div><div class="param-desc"><span class="param-type"><a href="#wireless_network">wireless_network</a></span>  </div>
+<div class="param">type (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> one in [dhcp, static] </div>
+<div class="param">static (optional)</div><div class="param-desc"><span class="param-type"><a href="#wireless_static">wireless_static</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="wireless_network"><code>wireless_network</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'></div>
+    <div class="field-items">
+      <div class="param">ssid (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> Current network SSID </div>
+<div class="param">key_mgmt (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> just if flag is EAP </div>
+<div class="param">eap (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> just if flag is EAP </div>
+<div class="param">identity (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> just if flag is EAP </div>
+<div class="param">ca_cert (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> just if flag is EAP. The path of the certificate </div>
+<div class="param">phase1 (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> just if flag is EAP </div>
+<div class="param">phase2 (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> just if flag is EAP </div>
+<div class="param">password (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> just if flag is EAP </div>
+<div class="param">psk (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> just if flag is PSK </div>
+    </div>  <!-- field-items -->
+  </div>
+  <div class="model">
+    <h3><a name="wireless_static"><code>wireless_static</code> - </a> <a class="up" href="#__Models">Up</a></h3>
+    <div class='model-description'>only if type is static</div>
+    <div class="field-items">
+      <div class="param">ip (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">subnet (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+<div class="param">gateway (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span>  </div>
+    </div>  <!-- field-items -->
+  </div>
+  </body>
+</html>
