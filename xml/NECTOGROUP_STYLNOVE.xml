@@ -1,0 +1,47 @@
+<ENDPOINT>
+    <DESCRIPTION>NectoGroup/Newlab controller for Stylnove lamp with sanification</DESCRIPTION>
+    <CATEGORY>18</CATEGORY>
+    <VISUALIZATION_TYPE>NECTOGROUP_STYLNOVE</VISUALIZATION_TYPE>
+    <MAPPING>
+        <VISUALIZATION_NAME>UUID</VISUALIZATION_NAME>
+        <DESCRIPTION>Safe Place UUID</DESCRIPTION>
+        <INPUT_MASK>HHHHHHHH-HHHH-HHHH-HHHH-HHHHHHHHHHHH</INPUT_MASK>
+        <VALIDATION_REGEX>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}</VALIDATION_REGEX>
+    </MAPPING>
+    <TAG>Light</TAG>
+    <PARAMETERS>
+        <PARAMETER>
+            <NAME>on_off</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <OPERATION><NAME>switch</NAME></OPERATION>
+            <DESCRIPTION>Attribute to set  the on/off state of the lamp</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>sanification</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <OPERATION><NAME>switch</NAME></OPERATION>
+            <DESCRIPTION>Attribute to set  the on/off state of the sanification</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>input0</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Attribute to get the on/off state of the input0</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>input1</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Attribute to get the on/off state of the input1</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>connettivita</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>NONE</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Connectivity attribute, true if the endpoint is online</DESCRIPTION>
+        </PARAMETER>
+    </PARAMETERS>
+    <DEFAULT_PARAMETER>on_off</DEFAULT_PARAMETER>
+</ENDPOINT>
