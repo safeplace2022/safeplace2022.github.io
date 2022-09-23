@@ -1,0 +1,94 @@
+<ENDPOINT>
+    <DESCRIPTION>BFT B EBA AUTOMATIC DOORS FOR SAFE PLACE</DESCRIPTION>
+    <CATEGORY>18</CATEGORY>
+    <VISUALIZATION_TYPE>BFT_B_EBA_SAFE_PLACE</VISUALIZATION_TYPE>
+    <MAPPING>
+        <VISUALIZATION_NAME>UUID</VISUALIZATION_NAME>
+        <DESCRIPTION>Safe Place UUID</DESCRIPTION>
+        <INPUT_MASK>HHHHHHHH-HHHH-HHHH-HHHH-HHHHHHHHHHHH</INPUT_MASK>
+        <VALIDATION_REGEX>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}</VALIDATION_REGEX>
+    </MAPPING>
+    <TAG>Actuator</TAG>
+    <PARAMETERS>
+        <PARAMETER>
+            <NAME>state</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>The actual position of the door</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>error</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>The error code</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>position</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <STEP>1</STEP>
+            <MIN_VAL>-3</MIN_VAL>
+            <MAX_VAL>100</MAX_VAL>
+            <DEFAULT_VALUE>0</DEFAULT_VALUE>
+            <OPERATION><NAME>update</NAME></OPERATION>
+            <DESCRIPTION>Set the position of the door</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>type</NAME>
+            <DATA_TYPE>STRING</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Report the device type</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>log</NAME>
+            <DATA_TYPE>STRING</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Log of the last 10 events with timestamp</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>intcom</NAME>
+            <DATA_TYPE>STRING</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Communicates the arrival of an internal or subsystem open command</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>ota</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>NONE</DEFAULT_LOG_TYPE>
+            <OPERATION><NAME>button</NAME></OPERATION>
+            <DESCRIPTION>Send a command to perform a firmware update</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>ask_type</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>NONE</DEFAULT_LOG_TYPE>
+            <OPERATION><NAME>button</NAME></OPERATION>
+            <DESCRIPTION>Send a command to get the yype information</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>get_log</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>NONE</DEFAULT_LOG_TYPE>
+            <OPERATION><NAME>button</NAME></OPERATION>
+            <DESCRIPTION>Send a command to get the last logs</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>mode</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <STEP>1</STEP>
+            <MIN_VAL>0</MIN_VAL>
+            <MAX_VAL>3</MAX_VAL>
+            <DEFAULT_VALUE>0</DEFAULT_VALUE>
+            <OPERATION><NAME>update</NAME></OPERATION>
+            <DESCRIPTION>Set the mode of operation of the door</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>connettivita</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>NONE</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Connectivity attribute, true if the endpoint is online</DESCRIPTION>
+        </PARAMETER>
+    </PARAMETERS>
+    <DEFAULT_PARAMETER>state</DEFAULT_PARAMETER>
+</ENDPOINT>

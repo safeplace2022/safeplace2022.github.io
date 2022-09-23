@@ -1,0 +1,117 @@
+<ENDPOINT>
+    <DESCRIPTION>NectoGroup/Newlab controller for Atenalux RGBWW lamp</DESCRIPTION>
+    <CATEGORY>18</CATEGORY>
+    <VISUALIZATION_TYPE>NECTOGROUP_ATENALUX_RGB_WW</VISUALIZATION_TYPE>
+    <MAPPING>
+        <VISUALIZATION_NAME>UUID</VISUALIZATION_NAME>
+        <DESCRIPTION>Safe Place UUID</DESCRIPTION>
+        <INPUT_MASK>HHHHHHHH-HHHH-HHHH-HHHH-HHHHHHHHHHHH</INPUT_MASK>
+        <VALIDATION_REGEX>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}</VALIDATION_REGEX>
+    </MAPPING>
+    <PARAMETERS>
+        <PARAMETER>
+            <NAME>on_off</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <OPERATION><NAME>switch</NAME></OPERATION>
+            <DESCRIPTION>Attribute to set the on/off state of the white lamp</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>on_off_rgb</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <OPERATION><NAME>switch</NAME></OPERATION>
+            <DESCRIPTION>Attribute to set the on/off state of the rgb lamp</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>rgb</NAME>
+            <DATA_TYPE>LIST</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DEFAULT_VALUE>0|0|0</DEFAULT_VALUE>
+            <OPERATION><NAME>update</NAME></OPERATION>
+            <DESCRIPTION>Control colors of lamp (rgb format)</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>level_rgb</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <STEP>1</STEP>
+            <MIN_VAL>0</MIN_VAL>
+            <MAX_VAL>100</MAX_VAL>
+            <DEFAULT_VALUE>100</DEFAULT_VALUE>
+            <OPERATION><NAME>update</NAME></OPERATION>
+            <DESCRIPTION>Set the dimming level of the rgb colors of the lamp</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>color_temperature</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <STEP>1</STEP>
+            <MIN_VAL>0</MIN_VAL>
+            <MAX_VAL>255</MAX_VAL>
+            <DEFAULT_VALUE>127</DEFAULT_VALUE>
+            <OPERATION><NAME>update</NAME></OPERATION>
+            <DESCRIPTION>Control color temperature of the lamp (0: warm, 255: cold)</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>level</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <STEP>1</STEP>
+            <MIN_VAL>0</MIN_VAL>
+            <MAX_VAL>100</MAX_VAL>
+            <DEFAULT_VALUE>100</DEFAULT_VALUE>
+            <OPERATION><NAME>update</NAME></OPERATION>
+            <DESCRIPTION>Set the dimming level of the color temperature of the lamp</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>pwm0</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Attribute to get the level of PWM0 output</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>pwm1</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Attribute to get the level of PWM1 output</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>pwm2</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Attribute to get the level of PWM2 output</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>pwm3</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Attribute to get the level of PWM3 output</DESCRIPTION>
+        </PARAMETER>
+         <PARAMETER>
+            <NAME>pwm4</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Attribute to get the level of PWM4 output</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>input0</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Attribute to get the on/off state of the input0</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>input1</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Attribute to get the on/off state of the input1</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>connettivita</NAME>
+            <DATA_TYPE>BOOL</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>NONE</DEFAULT_LOG_TYPE>
+            <DESCRIPTION>Connectivity attribute, true if the endpoint is online</DESCRIPTION>
+        </PARAMETER>
+    </PARAMETERS>
+    <DEFAULT_PARAMETER>on_off</DEFAULT_PARAMETER>
+</ENDPOINT>
