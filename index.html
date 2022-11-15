@@ -5,11 +5,11 @@
 <h1>Documentazione EDALAB BOX-IO</h1>
 
 <h2>EDALAB Cloud API</h2>
-Nota: Per i servizi, come da documentazione, l'APi per ottenere il token è https://safeplace.edalab.it:9997/am/oauth/token.<br>
+Nota: Per i servizi, come da documentazione, l'APi per ottenere il token è https://safeplace.edalab.it/am/oauth/token.<br>
 Il client-id da utilizzare è a62d1194-17da-11e8-b642<br>
 Nel seguito viene riportato un esempio su come ottenere il token:
 <pre><code>
-curl --location --request POST 'https://safeplace.edalab.it:9997/am/oauth/token' \
+curl --location --request POST 'https://safeplace.edalab.it/am/oauth/token' \
 --header 'Content-Type: application/json' \
 --header 'Cookie: JSESSIONID=2478D1072F1C03258896B57A434FE656' \
 --data-raw '{
@@ -19,7 +19,7 @@ curl --location --request POST 'https://safeplace.edalab.it:9997/am/oauth/token'
 	"client_id": "a62d1194-17da-11e8-b642"
 }'
 </code></pre>
-    
+
 <h3>Servizio gestione utenti e registrazione dispositivi</h3>
 
 <ul>
