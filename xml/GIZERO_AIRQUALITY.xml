@@ -14,7 +14,7 @@
     <PARAMETERS>
         <PARAMETER>
             <NAME>o3</NAME>
-            <DATA_TYPE>FLOAT</DATA_TYPE>
+            <DATA_TYPE>INT</DATA_TYPE>
             <DEFAULT_LOG_TYPE>GRAPH</DEFAULT_LOG_TYPE>
             <UNIT>parts_per_billion</UNIT>
             <DESCRIPTION>Ozone level measured by the sensor</DESCRIPTION>
@@ -62,6 +62,14 @@
             <DEFAULT_LOG_TYPE>GRAPH</DEFAULT_LOG_TYPE>
             <UNIT>percent</UNIT>
             <DESCRIPTION>Air relative humidity measured by the sensor</DESCRIPTION>
+        </PARAMETER>
+        <PARAMETER>
+            <NAME>pressure</NAME>
+            <DATA_TYPE>INT</DATA_TYPE>
+            <DEFAULT_LOG_TYPE>GRAPH</DEFAULT_LOG_TYPE>
+            <UNIT>pascal</UNIT>
+            <UNIT_PREFIX>hecto</UNIT_PREFIX>
+            <DESCRIPTION>Attribute used to report pressure measures (hPa)</DESCRIPTION>
         </PARAMETER>
         <PARAMETER>
             <NAME>connettivita</NAME>

@@ -54,21 +54,21 @@
         <PARAMETER>
             <NAME>ota</NAME>
             <DATA_TYPE>BOOL</DATA_TYPE>
-            <DEFAULT_LOG_TYPE>NONE</DEFAULT_LOG_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
             <OPERATION><NAME>button</NAME></OPERATION>
             <DESCRIPTION>Send a command to perform a firmware update</DESCRIPTION>
         </PARAMETER>
         <PARAMETER>
             <NAME>ask_type</NAME>
             <DATA_TYPE>BOOL</DATA_TYPE>
-            <DEFAULT_LOG_TYPE>NONE</DEFAULT_LOG_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
             <OPERATION><NAME>button</NAME></OPERATION>
             <DESCRIPTION>Send a command to get the yype information</DESCRIPTION>
         </PARAMETER>
         <PARAMETER>
             <NAME>get_log</NAME>
             <DATA_TYPE>BOOL</DATA_TYPE>
-            <DEFAULT_LOG_TYPE>NONE</DEFAULT_LOG_TYPE>
+            <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
             <OPERATION><NAME>button</NAME></OPERATION>
             <DESCRIPTION>Send a command to get the last logs</DESCRIPTION>
         </PARAMETER>

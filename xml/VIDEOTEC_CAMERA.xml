@@ -12,21 +12,21 @@
     <PARAMETERS>
         <PARAMETER>
             <NAME>crowd_alarm</NAME>
-            <DATA_TYPE>LIST</DATA_TYPE>
+            <DATA_TYPE>INT</DATA_TYPE>
             <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
-            <DESCRIPTION>Crowd alarm. Format "StartStop|PresetIt"</DESCRIPTION>
+            <DESCRIPTION>Crowd alarm</DESCRIPTION>
         </PARAMETER>
         <PARAMETER>
             <NAME>mask_alarm</NAME>
-            <DATA_TYPE>LIST</DATA_TYPE>
+            <DATA_TYPE>INT</DATA_TYPE>
             <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
-            <DESCRIPTION>Mask alarm. Format "StartStop|PresetIt"</DESCRIPTION>
+            <DESCRIPTION>Mask alarm</DESCRIPTION>
         </PARAMETER>
         <PARAMETER>
             <NAME>video_analysis</NAME>
             <DATA_TYPE>LIST</DATA_TYPE>
             <DEFAULT_LOG_TYPE>TEXT</DEFAULT_LOG_TYPE>
-            <DESCRIPTION>Video analysis status. Format "numberOfPeople|numberOfPeopleConfidence|crowdStatus|noMaskStatus|noMaskStatusConfidence|PresetIt"</DESCRIPTION>
+            <DESCRIPTION>Video analysis status. Format "numberOfPeople|numberOfPeopleConfidence|crowdStatus|noMaskStatus|noMaskStatusConfidence|PresetIt|ipAddress"</DESCRIPTION>
         </PARAMETER>
         <PARAMETER>
             <NAME>connettivita</NAME>
